@@ -1,0 +1,351 @@
+-- SELECT * FROM joins.users1 t1
+-- CROSS JOIN joins.groups t2
+
+-- SELECT *FROM joins.membership t1
+-- INNER JOIN joins.users1 t2
+-- on t1.user_id = t2.user_id
+
+--  SELECT *FROM joins.membership t1
+--  LEFT JOIN joins.users1 t2
+--  on t1.user_id = t2.user_id
+
+--  SELECT *FROM joins.membership t1
+--  RIGHT JOIN joins.users1 t2
+--  on t1.user_id = t2.user_id
+
+-- NOT POSSIBLE
+ -- SELECT *FROM joins.membership t1
+--  FULL OUTER JOIN joins.users1 t2
+--  on t1.user_id = t2.user_id
+
+-- SELECT * FROM joins.person1
+-- UNION 
+-- SELECT * FROM joins.person2
+
+-- SELECT * FROM joins.person1
+-- UNION ALL
+-- SELECT * FROM joins.person2
+
+-- SELECT * FROM joins.person1
+-- INTERSECT
+-- SELECT * FROM joins.person2
+
+-- SELECT * FROM joins.person1
+-- EXCEPT
+-- SELECT * FROM joins.person2
+
+-- SELECT * FROM joins.person2
+-- EXCEPT
+-- SELECT * FROM joins.person1
+
+-- SELECT *FROM joins.membership t1
+-- LEFT JOIN joins.users1 t2
+-- on t1.user_id = t2.user_id
+-- UNION
+-- SELECT *FROM joins.membership t1
+-- RIGHT JOIN joins.users1 t2
+-- on t1.user_id = t2.user_id
+
+-- //SELF JOIN
+-- SELECT * FROM joins.users1 t1
+-- JOIN joins.users1 t2
+-- On t1.emergency_contact = t2.user_id
+
+ -- JOINING BASED ON MORE THAN 2 TABLES 
+
+-- SELECT * FROM flipkart.order_details t1
+-- JOIN flipkart.orders t2
+-- ON t1.order_id = t2.order_id
+-- JOIN flipkart.users t3
+-- ON t3.user_id = t2.user_id
+
+-- FILTERING COLUMNS
+-- SELECT t1.order_id,t2.name,t2.city 
+-- FROM flipkart.orders t1 
+-- JOIN flipkart.users t2
+-- ON t1.user_id = t2.user_id
+
+-- SELECT t1.order_id,t2.vertical 
+-- FROM flipkart.order_details t1
+-- join flipkart.category t2
+-- ON t1.category_id = t2.category_id
+
+
+-- FILTERING BY ROWS
+ -- SELECT * FROM flipkart.orders t1
+--  join flipkart.users t2
+--  on t1.user_id = t2.user_id
+--  where city = 'Pune'
+
+-- SELECT * FROM flipkart.order_details t1
+-- join flipkart.category t2
+-- on t1.category_id = t2.category_id 
+-- Where vertical = 'Chairs'
+
+-- SELECT t1.order_id,SUM(t2.profit)
+-- FROM flipkart.orders t1
+-- join flipkart.order_details t2
+-- on t1.order_id = t2.order_id
+-- GROUP BY t1.order_id
+-- HAVING SUM(t2.profit) > 0
+
+-- SELECT t2.name,count(*) FROM flipkart.orders t1
+-- JOIN flipkart.users t2 
+-- on t1.user_id = t2.user_id
+-- group by t2.name
+-- order by count(*) DESC LIMIT 1
+
+-- SELECT t2.vertical, sum(profit) AS 'total_profit' FROM flipkart.order_details t1
+-- JOIN flipkart.category t2 
+-- on t1.category_id = t2.category_id
+-- group by t2.vertical
+-- order by total_profit DESC LIMIT 1
+
+-- SELECT t3.state, sum(profit) AS 'total_profit' FROM flipkart.order_details t1
+-- JOIN flipkart.orders t2 
+-- on t1.order_id = t2.order_id
+-- join flipkart.users t3
+-- on t2.user_id = t3.user_id
+-- group by t3.state
+-- order by total_profit DESC LIMIT 1
+
+
+-- SELECT t2.vertical, sum(profit) AS 'total_profit' FROM flipkart.order_details t1
+-- JOIN flipkart.category t2 
+-- on t1.category_id = t2.category_id
+-- group by t2.vertical
+-- having sum(profit) >5000
+-- order by total_profit DESC LIMIT 1
+
+-- use joins;
+-- SELECT * FROM joins.movies
+-- WHERE (gross-budget) = (SELECT MAX(gross-budget) from joins.movies)
+
+-- SELECT * FROM joins.movies
+-- order by (gross-budget) desc limit 1
+
+-- SELECT  * FROM movies
+-- WHERE score > (SELECT AVG(score)
+-- FROM movies)
+
+-- SELECT * FROM movies 
+-- WHERE year = 2000 AND score = (SELECT MAX(score) 
+-- 			                   FROM movies 
+--                                WHERE year = 2000)
+
+-- SELECT * FROM movies 
+-- WHERE score = (SELECT MAX(score) 
+--                 FROM movies 
+-- 				WHERE votes > (SELECT AVG(votes) 
+-- 								from movies))
+
+
+-- ROW SUBQUERY
+-- use zomato;
+-- SELECT * FROM users
+-- WHERE user_id NOT IN (SELECT DISTINCT(user_id) FROM orders)  
+
+-- WITH top_directors AS ((SELECT director
+-- 						from movies 
+-- 						group by director 
+-- 						order by sum(gross) desc limit 3))
+-- SELECT * FROM movies
+-- WHERE director IN (SELECT * FROM top_directors)
+
+-- SELECT * FROM movies 
+-- where star in ( select star from movies
+-- where votes > 25000
+-- group by star 
+-- having avg(score) > 8.5) 
+
+-- SELECT * FROM movies 
+-- WHERE (year,gross - budget) IN 
+-- (SELECT year,max(gross - budget) from movies 
+-- group by year)
+
+-- SELECT * FROM joins.movies
+-- where (genre,score) in (SELECT genre,max(score) FROM joins.movies
+-- 				where votes > 25000
+-- 				group by genre)
+-- and votes > 25000
+
+-- CORRELATED SUBQUERY
+-- SELECT * FROM joins.movies m1
+-- WHERE score > (SELECT AVG(score) from joins.movies m2
+-- 				where m2.genre = m1.genre)
+
+
+-- WITH fav_food AS (SELECT t2.user_id,name,f_name,count(*) AS 'frequency' FROM users t1
+-- 				join orders t2 on t1.user_id = t2.user_id 
+--                 join order_details t3 on t2.order_id = t3.order_id
+--                 join food t4 on t3.f_id = t4.f_id
+--                 group by name,t2.user_id,t3.f_id,f_name)
+-- SELECT * FROM fav_food f1
+-- WHERE frequency = (SELECT MAX(frequency) 
+-- 					from fav_food f2
+--                     where f2.user_id = f1.user_id)
+
+-- usage with select
+
+-- SELECT name,round(votes/(SELECT SUM(votes) from joins.movies)*100,3) FROM joins.movies
+
+-- SELECT name,genre,score,round((SELECT AVG(score) FROM joins.movies m2 where m2.genre = m1.genre),3) FROM joins.movies m1 
+
+
+-- usage with from
+
+-- SELECT r_name,avg_rating from (SELECT r_id,avg(restaurant_rating) as 'avg_rating'
+-- from zomato.orders
+-- group by r_id) t1 join restaurants t2
+-- on t1.r_id = t2.r_id
+
+-- usage with having
+
+-- SELECT genre,avg(score)
+-- FROM joins.movies
+-- group by genre
+-- having avg(score) > (SELECT avg(score)
+-- FROM joins.movies);
+
+-- subquery in insert
+-- use zomato;
+-- INSERT INTO loyal_users
+-- (user_id,name)
+-- select t1.user_id,t2.name
+-- from orders t1
+-- join users t2 on t1.user_id= t2.user_id
+-- group by t1.user_id,t2.name
+-- having count(*) > 3 
+
+-- SUBQUERY IN UPDATE
+-- update loyal_users
+-- set money = (select sum(amount)*0.1 from  orders 
+-- where orders.user_id = loyal_users.user_id)
+
+-- SUBQUERY IN DELETE
+-- use zomato
+-- DELETE FROM users
+-- WHERE user_id in (select user_id from users
+-- where user_id not in (select distinct(user_id)from orders))
+
+-- WINDOW FUNCTION 
+-- RANK,DENSE_RANK,ROW_NUMBER
+
+-- SELECT *, 
+-- RANK() OVER(PARTITION BY branch ORDER BY marks DESC)
+-- FROM marks
+
+-- SELECT *, 
+-- DENSE_RANK() OVER(PARTITION BY branch ORDER BY marks DESC)
+-- FROM marks
+
+-- SELECT *, 
+-- ROW_NUMBER() OVER(PARTITION BY branch)
+-- FROM marks
+
+-- SELECT *, 
+-- CONCAT(branch,'_',ROW_NUMBER() OVER(PARTITION BY branch))
+-- FROM marks
+-- USE zomato;
+-- SELECT * FROM(SELECT MONTHNAME(date) AS 'month',user_id,SUM(amount) AS 'total',
+-- 				RANK() OVER(PARTITION BY MONTHNAME(date) ORDER BY SUM(amount) DESC) AS 'month_rank'
+-- 				FROM orders 
+-- 				GROUP BY MONTHNAME(date),MONTH(date),user_id
+-- 				ORDER BY MONTH(date)) t
+-- 				WHERE t.month_rank < 3
+-- 				ORDER BY month DESC, month_rank ASC
+
+-- use joins;
+-- CREATE TABLE marks (
+--  student_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+--     name VARCHAR(255),
+--     branch VARCHAR(255),
+--     marks INTEGER
+-- );
+
+-- INSERT INTO marks (name,branch,marks)VALUES 
+-- ('Nitish','EEE',82),
+-- ('Rishabh','EEE',91),
+-- ('Anukant','EEE',69),
+-- ('Rupesh','EEE',55),
+-- ('Shubham','CSE',78),
+-- ('Ved','CSE',43),
+-- ('Deepak','CSE',98),
+-- ('Arpan','CSE',95),
+-- ('Vinay','ECE',95),
+-- ('Ankit','ECE',88),
+-- ('Anand','ECE',81),
+-- ('Rohit','ECE',95),
+-- ('Prashant','MECH',75),
+-- ('Amit','MECH',69),
+-- ('Sunny','MECH',39),
+-- ('Gautam','MECH',51)
+
+
+-- FIRST_VALUE,LAST_VALUE,NTH_VALUE
+ 
+-- SELECT *,
+-- first_value(name) over(order by marks desc)
+-- from marks
+
+-- SELECT *,
+-- last_value(marks) over(order by marks desc
+-- 						ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+-- from marks;
+
+-- SELECT *,
+-- nth_value(name,2) over(partition by branch
+-- 						order by marks desc
+-- 						ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+-- from marks;
+
+-- SELECT name,branch,marks FROM (SELECT *,
+-- first_value(name) over( partition by branch order by marks desc) AS 'topper_name',
+-- first_value(marks) over(partition by branch order by marks desc) AS 'topper_marks'
+-- from marks) t 
+-- where t.name = t.topper_name AND t.marks = t.topper_marks;
+
+-- SELECT name,branch,marks FROM (SELECT *,
+-- last_value(name) over( partition by branch order by marks desc
+-- 						ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'topper_name',
+-- last_value(marks) over(partition by branch order by marks desc
+-- 						ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'topper_marks'
+-- from marks) t 
+-- where t.name = t.topper_name AND t.marks = t.topper_marks;
+
+-- another way simple
+-- SELECT name,branch,marks
+-- FROM (SELECT *,
+-- 	last_value(name) over W AS  'topper_name',
+-- 	last_value(marks) over W AS 'topper_marks'
+-- 	from marks
+-- window W as (partition by branch order by marks desc
+-- 						ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) )t
+-- where t.name = t.topper_name AND t.marks = t.topper_marks;
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
