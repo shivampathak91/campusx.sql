@@ -1,0 +1,18 @@
+-- SELECT batter,SUM(batsman_run) AS 'runs'
+-- FROM sql.ipl
+-- group by batter
+-- order by runs desc limit 5
+
+-- SELECT batter,count(*) as 'max_six'
+-- from sql.ipl
+-- where batsman_run = 6
+-- group by batter
+-- order by max_six desc limit 1,1
+
+
+
+
+
+
+
+
