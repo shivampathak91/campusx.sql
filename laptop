@@ -1,0 +1,152 @@
+SELECT * FROM joins.laptopdata;
+use joins;
+
+CREATE TABLE laptops_backup LIKE laptop;
+
+INSERT INTO laptops_backup
+SELECT * FROM laptop;
+
+SELECT * FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = "joins" 
+AND TABLE_NAME ="laptop";
+
+SELECT * FROM laptop;
+ALTER TABLE laptop DROP COLUMN `Unnamed: 0`;
+
+-- Drop the unwanted column
+ALTER TABLE laptop 
+DROP COLUMN `Unnamed: 0`;
+
+-- Add auto-incrementing index column at the start
+ALTER TABLE laptop
+ADD COLUMN `index` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+ALTER TABLE laptop AUTO_INCREMENT = 0;
+
+
+-- Reset the values to start from 0
+SET @r = -1;
+UPDATE laptop SET `index` = (@r := @r + 1) ORDER BY `index`;
+
+DELETE FROM laptop
+WHERE `index` in (SELECT `index`
+FROM laptop
+WHERE `index` IS NULL AND Company IS NULL AND TypeName IS NULL AND Inches IS NULL 
+AND ScreenResolution IS NULL AND `Cpu` IS NULL AND Ram IS NULL AND `Memory` IS NULL
+AND Gpu IS NULL AND OpSys IS NULL AND Weight IS NULL AND Price IS NULL)
+
+DELETE l
+FROM laptop l
+JOIN (
+    SELECT `index`
+    FROM laptop
+    WHERE Company IS NULL AND TypeName IS NULL AND Inches IS NULL AND ScreenResolution IS NULL AND Cpu IS NULL
+      AND Ram IS NULL AND Memory IS NULL AND Gpu IS NULL AND OpSys IS NULL AND Weight IS NULL AND Price IS NULL
+) t ON l.`index` = t.`index`;
+
+
+ALTER TABLE laptop MODIFY COLUMN Inches DECIMAL(10,1);
+use joins;
+
+UPDATE laptop
+SET Ram = REPLACE(Ram, 'GB', '');
+ALTER TABLE laptop MODIFY COLUMN Ram INTEGER ;
+
+
+UPDATE laptop
+SET Weight = REPLACE(Weight, 'kg', '');
+ALTER TABLE laptop MODIFY COLUMN Weight Decimal(5,2);
+
+UPDATE laptop
+SET Price = ROUND(Price);
+ALTER TABLE laptop MODIFY COLUMN Price iNTEGER;
+
+
+UPDATE laptop
+SET Weight = NULL
+WHERE Weight = '?';
+
+
+-- END AS 'os_brand'
+-- FROM laptop
+
+UPDATE laptop
+SET OpSys = 
+CASE
+	WHEN  OpSys LIKE '%mac%' THEN 'Mac'
+    WHEN  OpSys LIKE 'window%' THEN 'Windows'
+    WHEN  OpSys LIKE '%Linux%' THEN 'Linux'
+    WHEN  OpSys = 'No OS' THEN 'N/A'
+    ELSE 'other' 
+END;
+
+ALTER TABLE laptop
+ADD COLUMN gpu_brand VARCHAR(255) AFTER Gpu,
+ADD COLUMN gpu_name VARCHAR(255) AFTER gpu_brand;
+
+UPDATE laptop
+SET gpu_brand = substring_index(Gpu,' ',1);
+
+--  UPDATE laptop l1
+-- SET gpu_brand = (SELECT substring_index(Gpu,' ',1)FROM Laptop l2 where l2.index = l1.index)
+
+-- UPDATE laptop l1
+-- SET gpu_name = (SELECT REPLACE(Gpu,'gpu_brand','') FROM Laptop l2 where l2.index = l1.index);
+
+UPDATE laptop
+SET gpu_name = REPLACE(Gpu,gpu_brand,'');
+
+ALTER TABLE laptop DROP COLUMN Gpu;
+
+ALTER TABLE laptop
+ADD COLUMN cpu_brand VARCHAR(255) AFTER Cpu,
+ADD COLUMN cpu_name VARCHAR(255) AFTER cpu_brand,
+ADD COLUMN cpu_speed VARCHAR(255) AFTER cpu_name;
+
+
+UPDATE laptop
+SET cpu_brand = substring_index(Cpu,' ',1);
+					
+UPDATE laptop
+SET cpu_speed = CAST(REPLACE(SUBSTRING_INDEX(Cpu,' ',-1),'Ghz','') AS DECIMAL(10,2));
+
+					
+UPDATE laptop
+SET cpu_name =
+	REPLACE(
+		REPLACE(Cpu,cpu_brand,''),
+		SUBSTRING_INDEX(REPLACE(Cpu,cpu_brand,''),' ',-1),'');
+
+ALTER TABLE laptop DROP COLUMN Cpu;
+
+-- UPDATE laptop I1
+-- SET Ram = (SELECT REPLACE(Ram,'GB','') FROM laptop I2 WHERE I2.`index` = I1.`index`) 
+
+SELECT ScreenResolution,
+SUBSTRING_INDEX(substring_index(ScreenResolution,' ',-1),'x',1),
+SUBSTRING_INDEX(SUBSTRING_INDEX(ScreenResolution,' ',-1),'x',-1)
+FROM laptop
+
+ALTER TABLE laptop
+ADD COLUMN resolution_width INTEGER AFTER ScreenResolution,
+ADD COLUMN resolution_height INTEGER AFTER resolution_width;
+
+UPDATE laptop
+SET resolution_width = SUBSTRING_INDEX(substring_index(ScreenResolution,' ',-1),'x',1),
+resolution_height = SUBSTRING_INDEX(SUBSTRING_INDEX(ScreenResolution,' ',-1),'x',-1) ;
+
+SELECT * FROM laptop
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT * FROM joins.laptop;
